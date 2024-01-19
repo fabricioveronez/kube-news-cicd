@@ -32,7 +32,21 @@ jobs:
         push: true
         tags: |
           fabricioveronez/kube-news:${{github.run_number}}
-          fabricioveronez/kube-news:latest                
+          fabricioveronez/kube-news:latest  
+          
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@0.16.1
+      with:
+        image-ref: fabricioveronez/kube-news:${{github.run_number}}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        exit-code: 0
+        severity: UNKNOWN,CRITICAL,HIGH,MEDIUM,LOW
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
 
   CD:
     runs-on: ubuntu-latest
